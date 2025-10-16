@@ -21,6 +21,58 @@
 
 ---
 
+## 0️⃣ Sửa GRUB EFI (Nếu mất menu boot hoặc cài mới)
+
+> **Lưu ý**: Chỉ làm phần này nếu GRUB bị lỗi hoặc không nhận Windows. Nếu GRUB hoạt động bình thường, bỏ qua phần này.
+
+### Yêu cầu
+- Boot vào EndeavourOS Live USB
+- Biết phân vùng root của EndeavourOS (thường là `/dev/nvme0n1p6` hoặc tương tự)
+
+### Các bước thực hiện
+
+**1. Xác định phân vùng root**
+```bash
+sudo lsblk -f
+```
+Tìm phân vùng có `FSTYPE` = `ext4` hoặc `btrfs` (thường là `nvme0n1pX`)
+
+**2. Mount phân vùng root**
+```bash
+sudo mount /dev/nvme0n1pX /mnt
+```
+*(Thay X bằng số đúng, ví dụ: `p6` nếu đó là root Linux)*
+
+**3. Mount EFI vào đúng chỗ**
+```bash
+sudo mount /dev/nvme0n1p1 /mnt/boot/efi
+```
+
+**4. Chroot vào hệ thống**
+```bash
+sudo arch-chroot /mnt
+```
+
+**5. Cài lại GRUB**
+```bash
+grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB
+grub-mkconfig -o /boot/grub/grub.cfg
+```
+
+**6. Thoát và khởi động lại**
+```bash
+exit
+sudo umount -R /mnt
+reboot
+```
+
+### ✅ Kết quả mong đợi
+Sau khi khởi động lại, menu GRUB sẽ hiển thị:
+- EndeavourOS
+- Windows Boot Manager
+
+---
+
 ## 1️⃣ Cài đặt packages cần thiết
 
 ```bash
@@ -187,14 +239,14 @@ CPU:          +47.0°C
 
 ---
 
-## 6️⃣ Cấu hình GRUB (Tùy chọn)
+## 6️⃣ Cấu hình GRUB
 
 **Cấu hình GRUB hiện tại của bạn**:
 - Tắt watchdog (`nowatchdog`)
 - Enable nvme load (`nvme_load=YES`)
 - Giảm log level (`loglevel=3`)
 
-### Chỉnh sửa GRUB (nếu muốn)
+### Chỉnh sửa GRUB
 
 ```bash
 sudo nano /etc/default/grub
@@ -405,6 +457,7 @@ sudo systemctl restart tlp.service
 
 ## 📝 Checklist sau khi cài xong
 
+- [ ] GRUB menu hiển thị EndeavourOS + Windows (nếu dual boot)
 - [ ] cpupower service: enabled & active
 - [ ] disable-boost service: enabled & active
 - [ ] tlp service: enabled & active
