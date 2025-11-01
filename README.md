@@ -26,8 +26,8 @@
 > **Lưu ý**: Chỉ làm phần này nếu GRUB bị lỗi hoặc không nhận Windows. Nếu GRUB hoạt động bình thường, bỏ qua phần này.
 
 ### Yêu cầu
-- Boot vào EndeavourOS Live USB
-- Biết phân vùng root của EndeavourOS (thường là `/dev/nvme0n1p6` hoặc tương tự)
+- Boot vào  Live USB
+- Biết phân vùng root của  (thường là `/dev/nvme0n1p6` hoặc tương tự)
 
 ### Các bước thực hiện
 
@@ -469,3 +469,75 @@ sudo systemctl restart tlp.service
 ---
 
 **✅ Hoàn tất!** Sau khi làm xong các bước trên, máy bạn sẽ có lại cấu hình tối ưu như hiện tại.
+
+
+Hướng Dẫn Khắc Phục Lỗi Mất Windows trong GRUB (EndeavourOS/Arch-based)
+
+📌 Vấn đề
+
+Sau khi cài đặt EndeavourOS (hoặc các bản phân phối Linux dựa trên Arch khác) dưới dạng Dual Boot cùng với Windows, menu GRUB (Grand Unified Bootloader) chỉ hiển thị tùy chọn khởi động Linux và UEFI Firmware Settings mà không hiển thị Windows Boot Manager.
+
+✨ Giải pháp
+
+Vấn đề này xảy ra vì GRUB cần một công cụ gọi là os-prober (OSes PROBEr) để quét và tìm các hệ điều hành khác trên đĩa cứng, và sau đó cần được kích hoạt và cập nhật.
+
+Bước 1: Khởi động vào EndeavourOS
+
+    Chọn EndeavourOS Linux trên menu GRUB để đăng nhập vào hệ điều hành Linux của bạn.
+
+    Mở Terminal (Konsole, GNOME Terminal, hoặc Fish shell).
+
+Bước 2: Cài đặt và Kích hoạt os-prober
+
+Sử dụng trình quản lý gói pacman (của Arch/EndeavourOS) để cài đặt os-prober và cấu hình GRUB.
+
+2.1. Cài đặt os-prober
+
+Bash
+
+# Sử dụng pacman để cài đặt os-prober (nếu nó chưa được cài đặt)
+sudo pacman -S os-prober
+
+2.2. Kích hoạt os-prober trong Cấu hình GRUB
+
+Mặc định, GRUB có thể đã tắt chức năng tự động tìm kiếm OS khác. Bạn cần chỉnh sửa file cấu hình:
+Bash
+
+# Mở file cấu hình GRUB chính để chỉnh sửa bằng nano
+sudo nano /etc/default/grub
+
+Trong file /etc/default/grub, tìm đến dòng sau (có thể nó đã bị comment với dấu # ở đầu):
+
+#GRUB_DISABLE_OS_PROBER=true
+
+Hãy xóa dấu # và đảm bảo giá trị là false:
+
+GRUB_DISABLE_OS_PROBER=false
+
+    Lưu lại file (Ctrl+O rồi Enter trong nano, sau đó Ctrl+X để thoát).
+
+Bước 3: Cập nhật Cấu hình GRUB
+
+Chạy lệnh này để buộc GRUB quét lại toàn bộ ổ đĩa, tìm Windows, và ghi lại cấu hình boot mới.
+Bash
+
+# Cập nhật GRUB và tạo lại menu boot
+sudo grub-mkconfig -o /boot/grub/grub.cfg
+
+Nếu thành công, bạn sẽ thấy output hiển thị rằng Windows Boot Manager đã được tìm thấy, ví dụ:
+
+Generating grub configuration file ...
+...
+Warning: os-prober will be executed to detect other bootable partitions.
+Found Windows Boot Manager on /dev/nvme0n1p... (hoặc tương tự)
+...
+done
+
+Bước 🔄 Bước 4: Khởi động lại và Kiểm tra
+
+Khởi động lại máy tính của bạn:
+Bash
+
+reboot
+
+Khi menu GRUB xuất hiện, hãy kiểm tra xem mục "Windows Boot Manager" hoặc một mục "Windows" tương tự đã được thêm vào danh sách chưa.
