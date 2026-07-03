@@ -541,3 +541,139 @@ Bash
 reboot
 
 Khi menu GRUB xuất hiện, hãy kiểm tra xem mục "Windows Boot Manager" hoặc một mục "Windows" tương tự đã được thêm vào danh sách chưa.
+
+# Arch Linux - Thiết lập sau khi cài mới
+
+## 1. Cập nhật hệ thống
+
+```bash
+sudo pacman -Syu
+```
+
+---
+
+## 2. Cài các gói cơ bản
+
+```bash
+sudo pacman -S --needed \
+base-devel \
+git \
+curl \
+wget \
+nano \
+vim \
+unzip \
+zip \
+tar \
+openssh \
+networkmanager
+```
+
+Bật NetworkManager:
+
+```bash
+sudo systemctl enable --now NetworkManager
+```
+
+Kiểm tra:
+
+```bash
+systemctl status NetworkManager
+```
+
+---
+
+## 3. Cài yay (AUR Helper)
+
+Clone repository:
+
+```bash
+git clone https://aur.archlinux.org/yay.git
+```
+
+Build và cài đặt:
+
+```bash
+cd yay
+makepkg -si
+cd ..
+rm -rf yay
+```
+
+Kiểm tra:
+
+```bash
+yay --version
+```
+
+---
+
+## 4. Cài Firefox
+
+```bash
+sudo pacman -S firefox
+```
+
+---
+
+## 5. Cài Warp Terminal
+
+```bash
+yay -S warp-terminal
+```
+
+---
+
+## 6. Cài font cơ bản
+
+```bash
+sudo pacman -S \
+ttf-dejavu \
+noto-fonts \
+noto-fonts-cjk \
+noto-fonts-emoji \
+ttf-liberation
+```
+
+---
+
+## 7. Cài công cụ lập trình
+
+```bash
+sudo pacman -S \
+neovim \
+kitty \
+nodejs \
+npm \
+python \
+python-pip \
+ripgrep \
+fd \
+fzf \
+tree \
+htop \
+btop \
+fastfetch
+```
+
+---
+
+## 8. Kiểm tra phiên bản
+
+```bash
+git --version
+yay --version
+firefox --version
+warp --version
+node -v
+npm -v
+nvim --version
+```
+
+---
+
+## 9. Khởi động lại
+
+```bash
+sudo reboot
+```
